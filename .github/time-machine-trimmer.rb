@@ -1,6 +1,6 @@
 cask "time-machine-trimmer" do
   version "1.0.0"
-  sha256 "bb462c2c5ba6acd9376a21015418e22ece3abd60b70f0543f6a1a7c4ee4c1c16"
+  sha256 "6696b22d7f7d6e1fdda5e72e892254bf63c035f2775df06ec515bf9510f669ac"
 
   url "https://github.com/ricardoleal/TimeMachineTrimmer/releases/download/v#{version}/TimeMachineTrimmer.dmg"
   name "TimeMachineTrimmer"
