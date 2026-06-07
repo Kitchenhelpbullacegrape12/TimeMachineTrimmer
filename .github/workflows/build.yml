@@ -7,15 +7,46 @@ on:
   push:
     branches: [main]
 
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
 jobs:
   build:
     runs-on: macos-latest
-    env:
-      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build
+      - name: Install certificates
+        if: secrets.DEV_SIGN_CERT != ''
+        env:
+          DEV_SIGN_CERT: ${{ secrets.DEV_SIGN_CERT }}
+          DEV_SIGN_PW: ${{ secrets.DEV_SIGN_PW }}
+        run: |
+          DEV_CERT_P12="$RUNNER_TEMP/dev_cert.p12"
+          KEYCHAIN_DB="$RUNNER_TEMP/keychain.keychain-db"
+          KEYCHAIN_PW=$(openssl rand -base64 24)
+          security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN_DB"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_DB"
+          security unlock-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN_DB"
+          echo -n "$DEV_SIGN_CERT" | base64 --decode -o "$DEV_CERT_P12"
+          security import "$DEV_CERT_P12" -P "$DEV_SIGN_PW" -A -t cert -f pkcs12 -k "$KEYCHAIN_DB"
+          security list-keychain -d user -s "$KEYCHAIN_DB"
+
+      - name: Build (signed)
+        if: secrets.DEV_SIGN_CERT != ''
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CODE_SIGN_IDENTITY: ${{ secrets.CODE_SIGN_IDENTITY }}
+        run: |
+          xcodebuild build \
+            -project TimeMachineTrimmer.xcodeproj \
+            -scheme TimeMachineTrimmer \
+            -configuration Release \
+            DEVELOPMENT_TEAM=$APPLE_TEAM_ID \
+            CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY"
+
+      - name: Build (unsigned)
+        if: secrets.DEV_SIGN_CERT == ''
         run: |
           xcodebuild build \
             -project TimeMachineTrimmer.xcodeproj \
@@ -23,3 +54,8 @@ jobs:
             -configuration Release \
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGN_STYLE=Automatic
+
+      - name: Clean up keychain
+        if: ${{ always() }}
+        run: |
+          security delete-keychain "$RUNNER_TEMP/keychain.keychain-db" 2>/dev/null || true

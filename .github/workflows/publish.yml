@@ -6,30 +6,58 @@ on:
     tags:
       - "*.*.*"
 
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
 jobs:
   build:
+    name: Build and Publish Release
     runs-on: macos-latest
-    env:
-      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install create-dmg
+      - name: Install Tooling
         run: brew install create-dmg
 
-      - name: Build (unsigned)
+      - name: Install certificates
+        env:
+          DEV_SIGN_CERT: ${{ secrets.DEV_SIGN_CERT }}
+          DEV_SIGN_PW: ${{ secrets.DEV_SIGN_PW }}
         run: |
-          xcodebuild build \
+          DEV_CERT_P12="$RUNNER_TEMP/dev_cert.p12"
+          KEYCHAIN_DB="$RUNNER_TEMP/keychain.keychain-db"
+          KEYCHAIN_PW=$(openssl rand -base64 24)
+          security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN_DB"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_DB"
+          security unlock-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN_DB"
+          echo -n "$DEV_SIGN_CERT" | base64 --decode -o "$DEV_CERT_P12"
+          security import "$DEV_CERT_P12" -P "$DEV_SIGN_PW" -A -t cert -f pkcs12 -k "$KEYCHAIN_DB"
+          security list-keychain -d user -s "$KEYCHAIN_DB"
+
+      - name: Build
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CODE_SIGN_IDENTITY: ${{ secrets.CODE_SIGN_IDENTITY }}
+        run: |
+          xcodebuild archive \
             -project TimeMachineTrimmer.xcodeproj \
             -scheme TimeMachineTrimmer \
+            -destination generic/platform=macOS \
             -configuration Release \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGN_STYLE=Automatic
+            -archivePath "$RUNNER_TEMP/TimeMachineTrimmer.xcarchive" \
+            DEVELOPMENT_TEAM=$APPLE_TEAM_ID \
+            CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY"
 
-      - name: Copy app
+      - name: Sign
+        env:
+          CODE_SIGN_IDENTITY: ${{ secrets.CODE_SIGN_IDENTITY }}
         run: |
-          mkdir -p build
-          cp -R "build/Release/TimeMachineTrimmer.app" build/
+          codesign \
+            --sign "$CODE_SIGN_IDENTITY" \
+            --options=runtime \
+            --force --deep --timestamp \
+            --entitlements "TimeMachineTrimmer/TimeMachineTrimmer.entitlements" \
+            "$RUNNER_TEMP/TimeMachineTrimmer.xcarchive/Products/Applications/TimeMachineTrimmer.app"
 
       - name: Create DMG
         run: |
@@ -43,15 +71,19 @@ jobs:
             --app-drop-link 380 190 \
             --hdiutil-verbose \
             --no-internet-enable \
-            "build/TimeMachineTrimmer.dmg" \
-            "build/TimeMachineTrimmer.app"
+            "$RUNNER_TEMP/TimeMachineTrimmer.dmg" \
+            "$RUNNER_TEMP/TimeMachineTrimmer.xcarchive/Products/Applications/TimeMachineTrimmer.app"
 
-      - name: Publish release
+      - name: Publish Release
         uses: marvinpinto/action-automatic-releases@latest
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          prerelease: false
-          automatic_release_tag: ${{ github.ref_name }}
-          title: "TimeMachineTrimmer ${{ github.ref_name }}"
+          title: "${{ github.ref_name }}"
           files: |
-            build/TimeMachineTrimmer.dmg
+            ${{ runner.temp }}/TimeMachineTrimmer.dmg
+          prerelease: false
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Clean up keychain
+        if: ${{ always() }}
+        run: |
+          security delete-keychain "$RUNNER_TEMP/keychain.keychain-db" 2>/dev/null || true
