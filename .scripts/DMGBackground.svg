@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a2e23"/>
+      <stop offset="100%" stop-color="#052015"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0F6E56" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0F6E56" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)" rx="6"/>
+  <rect width="400" height="120" fill="url(#glow)" opacity="0.5"/>
+  <circle cx="340" cy="60" r="120" fill="#F0997B" opacity="0.04"/>
+  <circle cx="60" cy="240" r="100" fill="#0F6E56" opacity="0.06"/>
+  <text x="200" y="90" text-anchor="middle" font-family="Helvetica Neue, sans-serif" font-size="32" font-weight="700" fill="#E8F0EC">TimeMachineTrimmer</text>
+  <text x="200" y="118" text-anchor="middle" font-family="Helvetica Neue, sans-serif" font-size="13" fill="#6D8A7C">Trim old Time Machine backups</text>
+  <line x1="120" y1="140" x2="280" y2="140" stroke="#0F6E56" stroke-width="1" opacity="0.4"/>
+  <text x="200" y="175" text-anchor="middle" font-family="Helvetica Neue, sans-serif" font-size="12" fill="#4A685C">Drag app to Applications</text>
+  <text x="200" y="260" text-anchor="middle" font-family="Helvetica Neue, sans-serif" font-size="10" fill="#3D5A4E">Built with &lt;3 for Time Machine users</text>
+</svg>

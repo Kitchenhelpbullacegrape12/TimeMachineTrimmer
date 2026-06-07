@@ -1,0 +1,278 @@
+import SwiftUI
+
+@MainActor
+@Observable
+final class BackupViewModel {
+
+    enum TrimMethod: String, CaseIterable, Identifiable {
+        case age = "By Age"
+        case manual = "Manual"
+        var id: Self { self }
+    }
+
+    struct DeletionError: Identifiable, Equatable {
+        let id = UUID()
+        let backup: TimeMachineBackup
+        let error: String
+    }
+
+    struct DeletionResult: Equatable {
+        let deleted: Int
+        let failed: Int
+        let spaceReclaimed: Int64
+        let errors: [DeletionError]
+    }
+
+    enum AppState: Equatable {
+        case ready
+        case scanning
+        case scanned
+        case previewing
+        case deleting
+        case done(DeletionResult)
+        case error(String)
+
+        static func == (lhs: AppState, rhs: AppState) -> Bool {
+            switch (lhs, rhs) {
+            case (.ready, .ready), (.scanning, .scanning),
+                 (.scanned, .scanned), (.previewing, .previewing), (.deleting, .deleting):
+                return true
+            case (.done(let l), .done(let r)): return l == r
+            case (.error(let l), .error(let r)): return l == r
+            default: return false
+            }
+        }
+    }
+
+    private let service = TMUtilService()
+    private var statusPollTask: Task<Void, Never>?
+
+    func startStatusPolling() {
+        pollStatus()
+        statusPollTask?.cancel()
+        statusPollTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
+                await MainActor.run { self?.pollStatus() }
+            }
+        }
+    }
+
+    private func pollStatus() {
+        let status = TMUtilService.backupStatus()
+        tmBackupRunning = status.running
+        backupProgress = status.percent
+        backupTimeRemaining = status.timeRemaining
+        backupPhase = status.phase
+        backupFiles = status.files
+        backupTotalFiles = status.totalFiles
+    }
+
+    var state: AppState = .ready
+    var needsPermissionSheet: Bool = false
+    var destinations: [BackupDestination] = []
+    var backups: [TimeMachineBackup] = []
+    var volumeInfo: TMUtilService.VolumeInfo?
+    var selectedMethod: TrimMethod = .age {
+        didSet { if selectedMethod == .age { updateAgeSelection() } }
+    }
+    var ageThresholdMonths: Int = 6 {
+        didSet { if selectedMethod == .age { updateAgeSelection() } }
+    }
+    var previewBackups: [TimeMachineBackup] = []
+    var selectedBackupIds: Set<String> = []
+    var deletionProgress: Double = 0
+    var deletionLog: [String] = []
+    var errorMessage: String?
+    var searchQuery: String = ""
+    var tmBackupRunning: Bool = false
+    var backupProgress: Double = 0
+    var backupTimeRemaining: TimeInterval = 0
+    var backupPhase: String = ""
+    var backupFiles: Int = 0
+    var backupTotalFiles: Int = 0
+
+    var filteredBackups: [TimeMachineBackup] {
+        guard !searchQuery.isEmpty else { return backups }
+        return backups.filter { backup in
+            backup.volumeName.localizedCaseInsensitiveContains(searchQuery) ||
+            backup.dateFormatted.localizedCaseInsensitiveContains(searchQuery) ||
+            backup.dateShortFormatted.localizedCaseInsensitiveContains(searchQuery)
+        }
+    }
+
+    var totalBackupSize: Int64 {
+        volumeInfo?.usedBytes ?? 0
+    }
+
+    var oldestBackupDate: Date? {
+        backups.map(\.date).min()
+    }
+
+    var newestBackupDate: Date? {
+        backups.map(\.date).max()
+    }
+
+    var oldestDateFormatted: String {
+        oldestBackupDate?.formatted(date: .numeric, time: .omitted) ?? "\u{2014}"
+    }
+
+    var newestDateFormatted: String {
+        newestBackupDate?.formatted(date: .numeric, time: .omitted) ?? "\u{2014}"
+    }
+
+    var selectedDestination: BackupDestination? {
+        get { _selectedDestination ?? destinations.first }
+        set { _selectedDestination = newValue }
+    }
+    var _selectedDestination: BackupDestination?
+
+    var totalSizeFormatted: String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: totalBackupSize)
+    }
+
+    func requestPermissions() {
+        needsPermissionSheet = true
+        TMUtilService.triggerFDAuthorizationPrompt()
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!
+        NSWorkspace.shared.open(url)
+    }
+
+    func dismissPermissions() {
+        needsPermissionSheet = false
+    }
+
+    func checkPermissionsAndScan() async {
+        if !TMUtilService.checkFDA() {
+            needsPermissionSheet = true
+            return
+        }
+        needsPermissionSheet = false
+        await scanBackups()
+    }
+
+    /// Load known destinations from Time Machine plist (fast, no disk scanning)
+    func loadDestinations() {
+        destinations = service.getConfiguredDestinations()
+    }
+
+    func selectFirstDestination() {
+        _selectedDestination = destinations.first
+    }
+
+    func selectDestination(_ destination: BackupDestination) async {
+        _selectedDestination = destination
+        selectedBackupIds.removeAll()
+        await scanBackups()
+    }
+
+    var destinationLabel: String {
+        guard let d = selectedDestination else { return "Select Destination" }
+        return d.name
+    }
+
+    func scanBackups() async {
+        print("[scan] started")
+        state = .scanning
+        needsPermissionSheet = false
+        tmBackupRunning = TMUtilService.backupStatus().running
+        do {
+            destinations = try await service.getDestinations()
+            print("[scan] destinations: \(destinations.count)")
+            guard let mountPoint = selectedDestination?.mountPoint else {
+                print("[scan] no mount point")
+                state = .error("No Time Machine destination volume found.\nConnect your Time Machine drive and try again.")
+                return
+            }
+            print("[scan] mountPoint: \(mountPoint)")
+            backups = try await service.listBackups(mountPoint: mountPoint)
+            print("[scan] backups: \(backups.count)")
+            print("[scan] first backup path: \(backups.first?.path ?? "nil")")
+            volumeInfo = await service.getVolumeInfo(mountPoint: mountPoint)
+            print("[scan] volumeInfo: \(volumeInfo != nil)")
+            if selectedMethod == .age { updateAgeSelection() }
+            state = .scanned
+        } catch {
+            print("[scan] error: \(error.localizedDescription)")
+            state = .error(error.localizedDescription)
+        }
+    }
+
+    func computePreview() {
+        previewBackups = backups.filter { selectedBackupIds.contains($0.id) }
+        state = .previewing
+    }
+
+    func updateAgeSelection() {
+        let cutoff = Calendar.current.date(
+            byAdding: .month,
+            value: -ageThresholdMonths,
+            to: Date()
+        ) ?? Date()
+        selectedBackupIds = Set(backups.filter { $0.date < cutoff }.map(\.id))
+    }
+
+    func executeDeletion() async {
+        state = .deleting
+        deletionProgress = 0
+        deletionLog = []
+
+        let total = Double(previewBackups.count)
+        var deleted = 0
+        var failed = 0
+        var errors: [DeletionError] = []
+        var deletedIds: Set<String> = []
+
+        for (index, backup) in previewBackups.enumerated() {
+            do {
+                try await service.deleteBackup(backup)
+                deleted += 1
+                deletedIds.insert(backup.id)
+                deletionLog.append("\u{2705} \(backup.dateShortFormatted): Deleted")
+            } catch {
+                failed += 1
+                let msg = error.localizedDescription
+                errors.append(DeletionError(backup: backup, error: msg))
+                deletionLog.append("\u{274C} \(backup.dateShortFormatted): \(msg)")
+            }
+            deletionProgress = Double(index + 1) / total
+        }
+
+        backups.removeAll { deletedIds.contains($0.id) }
+        selectedBackupIds.subtract(deletedIds)
+
+        let result = DeletionResult(
+            deleted: deleted,
+            failed: failed,
+            spaceReclaimed: 0,
+            errors: errors
+        )
+        state = .done(result)
+    }
+
+    func reset() {
+        state = .ready
+        previewBackups = []
+        selectedBackupIds = []
+        deletionProgress = 0
+        deletionLog = []
+    }
+
+    func toggleBackupSelection(_ id: String) {
+        if selectedBackupIds.contains(id) {
+            selectedBackupIds.remove(id)
+        } else {
+            selectedBackupIds.insert(id)
+        }
+    }
+
+    func selectAllBackups() {
+        selectedBackupIds = Set(backups.map(\.id))
+    }
+
+    func deselectAllBackups() {
+        selectedBackupIds.removeAll()
+    }
+}
