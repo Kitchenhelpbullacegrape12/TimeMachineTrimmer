@@ -3,10 +3,15 @@
 ![Downloads](https://img.shields.io/github/downloads/ricardoleal/TimeMachineTrimmer/TimeMachineTrimmer.dmg?style=flat-square&logo=github&label=Downloads&color=green)
 
 # TimeMachineTrimmer
+<div align="center">
+  <img src=".github/banner.svg" alt="TimeMachineTrimmer banner">
+</div>
 
 Trim old Time Machine backups and reclaim disk space.
 
-<img src="TimeMachineTrimmer.png" width="720" alt="TimeMachineTrimmer screenshot">
+<div align="center">
+  <img src=".github/TimeMachineTrimmer.png" width="720" alt="TimeMachineTrimmer screenshot">
+</div>
 
 ## Features
 
