@@ -26,6 +26,8 @@ brew install --cask time-machine-trimmer
 
 > `HOMEBREW_GITHUB_API_TOKEN` is required because the tap repository is private.
 
+> **Gatekeeper**: The app is not signed with a paid Apple Developer ID certificate. If macOS blocks it on first launch, right-click the app in `/Applications` and select **Open**, then click **Open** in the dialog.
+
 ## Features
 
 * Trim old backups from any Time Machine volume
