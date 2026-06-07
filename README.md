@@ -29,10 +29,6 @@ brew trust ricardoleal/tap/time-machine-trimmer
 brew install --cask time-machine-trimmer
 ```
 
-> [!NOTE]
-> `brew trust` is required because the tap is private. If you don't have `gh` installed, pass your token manually:
-> `HOMEBREW_GITHUB_API_TOKEN=ghp_xxx brew tap ricardoleal/tap`
-
 ### Manual
 
 Download the latest `.dmg` from [Releases](https://github.com/ricardoleal/TimeMachineTrimmer/releases/latest), open it, and drag the app to `/Applications`.
