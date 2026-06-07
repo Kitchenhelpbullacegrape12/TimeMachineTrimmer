@@ -19,12 +19,10 @@ Download the latest `.dmg` from the [Releases Section](https://github.com/ricard
 ### Homebrew
 
 ```bash
-HOMEBREW_GITHUB_API_TOKEN=$(gh auth token) brew tap ricardoleal/tap
+brew tap ricardoleal/tap
 brew trust ricardoleal/tap/time-machine-trimmer
 brew install --cask time-machine-trimmer
 ```
-
-> `HOMEBREW_GITHUB_API_TOKEN` is required because the tap repository is private.
 
 > **Gatekeeper**: The app is not signed with a paid Apple Developer ID certificate. If macOS blocks it on first launch, right-click the app in `/Applications` and select **Open**, then click **Open** in the dialog.
 
