@@ -7,14 +7,8 @@ struct DashboardView: View {
     var body: some View {
         VStack(spacing: 0) {
             topBar
-
             Divider()
-
-            if viewModel.backups.isEmpty {
-                emptyState
-            } else {
-                contentBody
-            }
+            if viewModel.backups.isEmpty { emptyState } else { contentBody }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("focusSearch"))) { _ in
             isSearchFocused = true
@@ -164,11 +158,11 @@ struct DashboardView: View {
     }
 
     private var etaString: String {
-        let t = Int(viewModel.backupTimeRemaining)
-        let h = t / 3600
-        let m = (t % 3600) / 60
-        if h > 0 { return "\(h)h \(m)m remaining" }
-        return "\(m)m remaining"
+        let totalSeconds = Int(viewModel.backupTimeRemaining)
+        let hours = totalSeconds / 3_600
+        let minutes = (totalSeconds % 3_600) / 60
+        if hours > 0 { return "\(hours)h \(minutes)m remaining" }
+        return "\(minutes)m remaining"
     }
 
     private var searchField: some View {
@@ -206,7 +200,10 @@ struct DashboardView: View {
                 ContentUnavailableView(
                     "First Backup in Progress",
                     systemImage: "arrow.triangle.2.circlepath",
-                    description: Text("Time Machine is completing its first backup to this disk. No backups available to trim yet — check back once the backup finishes.")
+                    description: Text(
+                        "Time Machine is completing its first backup to this disk. "
+                        + "No backups available to trim yet — check back once the backup finishes."
+                    )
                 )
             } else if viewModel.state == .ready && !viewModel.destinations.isEmpty {
                 ContentUnavailableView(
@@ -251,9 +248,12 @@ struct DashboardView: View {
             if let info = viewModel.volumeInfo {
                 Divider()
                     .frame(height: 16)
-                StatItem(icon: "internaldrive", value: ByteCountFormatter.formatBytes(info.usedBytes), label: "used")
-                StatItem(icon: "externaldrive.badge.checkmark", value: ByteCountFormatter.formatBytes(info.freeBytes), label: "free")
-                StatItem(icon: "archivebox", value: ByteCountFormatter.formatBytes(info.totalBytes), label: "total")
+                StatItem(icon: "internaldrive",
+                         value: ByteCountFormatter.formatBytes(info.usedBytes), label: "used")
+                StatItem(icon: "externaldrive.badge.checkmark",
+                         value: ByteCountFormatter.formatBytes(info.freeBytes), label: "free")
+                StatItem(icon: "archivebox",
+                         value: ByteCountFormatter.formatBytes(info.totalBytes), label: "total")
             }
             Divider()
                 .frame(height: 16)
@@ -271,8 +271,10 @@ struct DashboardView: View {
     // MARK: - Backup Table
 
     private var backupTable: some View {
-        BackupListView(backups: viewModel.filteredBackups,
-                       selection: Bindable(viewModel).selectedBackupIds)
+        BackupListView(
+            backups: viewModel.filteredBackups,
+            selection: Bindable(viewModel).selectedBackupIds
+        )
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(
                 RoundedRectangle(cornerRadius: 8)

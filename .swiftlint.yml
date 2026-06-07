@@ -50,6 +50,10 @@ type_name:
 identifier_name:
   allowed_symbols: "_"
 
+type_body_length:
+  warning: 400
+  error: 500
+
 nesting:
   type_level: 2
 

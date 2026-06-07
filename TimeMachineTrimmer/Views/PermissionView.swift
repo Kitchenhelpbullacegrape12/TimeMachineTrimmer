@@ -32,9 +32,9 @@ struct PermissionView: View {
             .padding(12)
             .background(.fill.quaternary, in: RoundedRectangle(cornerRadius: 8))
 
-            Button(action: {
+            Button {
                 viewModel.requestPermissions()
-            }) {
+            } label: {
                 Label("Open System Settings", systemImage: "gearshape")
                     .frame(maxWidth: .infinity)
             }

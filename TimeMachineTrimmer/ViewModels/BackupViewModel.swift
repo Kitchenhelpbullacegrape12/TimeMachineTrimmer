@@ -32,13 +32,13 @@ final class BackupViewModel {
         case done(DeletionResult)
         case error(String)
 
-        static func == (lhs: AppState, rhs: AppState) -> Bool {
+        static func == (lhs: Self, rhs: Self) -> Bool {
             switch (lhs, rhs) {
             case (.ready, .ready), (.scanning, .scanning),
                  (.scanned, .scanned), (.previewing, .previewing), (.deleting, .deleting):
                 return true
-            case (.done(let l), .done(let r)): return l == r
-            case (.error(let l), .error(let r)): return l == r
+            case let (.done(lhsResult), .done(rhsResult)): return lhsResult == rhsResult
+            case let (.error(lhsMsg), .error(rhsMsg)): return lhsMsg == rhsMsg
             default: return false
             }
         }
@@ -169,33 +169,25 @@ final class BackupViewModel {
     }
 
     var destinationLabel: String {
-        guard let d = selectedDestination else { return "Select Destination" }
-        return d.name
+        guard let dest = selectedDestination else { return "Select Destination" }
+        return dest.name
     }
 
     func scanBackups() async {
-        print("[scan] started")
         state = .scanning
         needsPermissionSheet = false
         tmBackupRunning = TMUtilService.backupStatus().running
         do {
             destinations = try await service.getDestinations()
-            print("[scan] destinations: \(destinations.count)")
             guard let mountPoint = selectedDestination?.mountPoint else {
-                print("[scan] no mount point")
                 state = .error("No Time Machine destination volume found.\nConnect your Time Machine drive and try again.")
                 return
             }
-            print("[scan] mountPoint: \(mountPoint)")
             backups = try await service.listBackups(mountPoint: mountPoint)
-            print("[scan] backups: \(backups.count)")
-            print("[scan] first backup path: \(backups.first?.path ?? "nil")")
             volumeInfo = await service.getVolumeInfo(mountPoint: mountPoint)
-            print("[scan] volumeInfo: \(volumeInfo != nil)")
             if selectedMethod == .age { updateAgeSelection() }
             state = .scanned
         } catch {
-            print("[scan] error: \(error.localizedDescription)")
             state = .error(error.localizedDescription)
         }
     }
