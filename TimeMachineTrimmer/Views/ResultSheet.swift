@@ -30,7 +30,9 @@ struct ResultSheet: View {
                                 .font(.headline)
                             Spacer()
                             Button("Copy All") {
-                                copyToClipboard(result.errors.map { "\($0.backup.dateShortFormatted): \($0.error)" }.joined(separator: "\n"))
+                                let text = result.errors.map { "\($0.backup.dateShortFormatted): \($0.error)" }
+                                    .joined(separator: "\n")
+                                copyToClipboard(text)
                             }
                             .buttonStyle(.plain)
                             .font(.caption)
@@ -52,8 +54,7 @@ struct ResultSheet: View {
                                 .buttonStyle(.plain)
                                 .foregroundStyle(.tertiary)
                                 .onHover { hovering in
-                                    if hovering { NSCursor.pointingHand.push() }
-                                    else { NSCursor.pop() }
+                                    if hovering { NSCursor.pointingHand.push() } else { NSCursor.pop() }
                                 }
                             }
                         }

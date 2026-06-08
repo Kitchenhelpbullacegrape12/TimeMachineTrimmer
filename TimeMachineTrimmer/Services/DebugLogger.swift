@@ -35,7 +35,7 @@ enum DebugLogger {
                let size = attrs[.size] as? Int64,
                size > 5_000_000,
                let fileData = try? Data(contentsOf: logFile) {
-                try? fileData.dropFirst(fileData.count / 2).write(to: logFile)
+                try? Data(fileData.dropFirst(fileData.count / 2)).write(to: logFile)
             }
         }
     }

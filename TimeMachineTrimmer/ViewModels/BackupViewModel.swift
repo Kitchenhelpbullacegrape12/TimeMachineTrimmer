@@ -59,7 +59,7 @@ final class BackupViewModel {
     }
 
     private func pollStatus() {
-        let status = TMUtilService.backupStatus()
+        let status = TMFDAUtils.backupStatus()
         tmBackupRunning = status.running
         backupProgress = status.percent
         backupTimeRemaining = status.timeRemaining
@@ -72,7 +72,7 @@ final class BackupViewModel {
     var needsPermissionSheet: Bool = false
     var destinations: [BackupDestination] = []
     var backups: [TimeMachineBackup] = []
-    var volumeInfo: TMUtilService.VolumeInfo?
+    var volumeInfo: TMUtilTypes.VolumeInfo?
     var selectedMethod: TrimMethod = .age {
         didSet { if selectedMethod == .age { updateAgeSelection() } }
     }
@@ -136,7 +136,7 @@ final class BackupViewModel {
     func requestPermissions() {
         DebugLogger.log("requestPermissions: opening System Settings FDA page")
         needsPermissionSheet = true
-        TMUtilService.triggerFDAuthorizationPrompt()
+        TMFDAUtils.triggerFDAuthorizationPrompt()
         let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")!
         NSWorkspace.shared.open(url)
     }
@@ -147,7 +147,7 @@ final class BackupViewModel {
 
     func checkPermissionsAndScan() async {
         DebugLogger.log("checkPermissionsAndScan")
-        if !TMUtilService.checkFDA() {
+        if !TMFDAUtils.checkFDA() {
             DebugLogger.log("checkPermissionsAndScan: FDA denied, showing permission sheet")
             needsPermissionSheet = true
             return
@@ -184,7 +184,7 @@ final class BackupViewModel {
         DebugLogger.log("scanBackups: starting")
         state = .scanning
         needsPermissionSheet = false
-        tmBackupRunning = TMUtilService.backupStatus().running
+        tmBackupRunning = TMFDAUtils.backupStatus().running
         do {
             destinations = try await service.getDestinations()
             guard let mountPoint = selectedDestination?.mountPoint else {
