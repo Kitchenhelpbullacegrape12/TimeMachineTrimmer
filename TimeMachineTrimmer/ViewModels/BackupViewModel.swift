@@ -169,7 +169,7 @@ final class BackupViewModel {
     }
 
     func selectDestination(_ destination: BackupDestination) async {
-        DebugLogger.log("selectDestination: \(destination.name) (\(destination.mountPoint))")
+        DebugLogger.log("selectDestination: \(destination.name) (\(destination.mountPoint ?? "nil"))")
         _selectedDestination = destination
         selectedBackupIds.removeAll()
         await scanBackups()

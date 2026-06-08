@@ -45,7 +45,6 @@ enum DebugLogger {
         headerWritten = true
 
         let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
-        let build = ProcessInfo.processInfo.operatingSystemVersionString
         let header = """
         ─────────────────────────────────────────────
         TimeMachineTrimmer Debug Log

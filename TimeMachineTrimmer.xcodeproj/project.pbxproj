@@ -24,6 +24,9 @@
 		F5CAE93CD094475DA70E3F1B /* Views/TrimManualView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6756D3E39E5E4EB793037609 /* Views/TrimManualView.swift */; };
 		FA1DA8924F2F44E8B70010E1 /* Views/TrimByAgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C9E7C39AD2046EE9FCA8645 /* Views/TrimByAgeView.swift */; };
 		FEDCBA0987654321FEDCBA09 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AABBCCDDEEFF001122334455 /* Assets.xcassets */; };
+		AA0000010000000100000001 /* Services/TMUtilTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000010000000100000001 /* Services/TMUtilTypes.swift */; };
+		AA0000020000000200000002 /* Services/TMFDAUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000020000000200000002 /* Services/TMFDAUtils.swift */; };
+		AA0000030000000300000003 /* Services/DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000030000000300000003 /* Services/DebugLogger.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +49,9 @@
 		C1C358C4EF954CC991B4E0DD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EB96D981D6ED428193FCD0CB /* Models/ByteCountFormatter+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models/ByteCountFormatter+Extensions.swift"; sourceTree = "<group>"; };
 		F0420157E67E4C46A210AABD /* Models/TimeMachineBackup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models/TimeMachineBackup.swift; sourceTree = "<group>"; };
+		BB0000010000000100000001 /* Services/TMUtilTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/TMUtilTypes.swift; sourceTree = "<group>"; };
+		BB0000020000000200000002 /* Services/TMFDAUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/TMFDAUtils.swift; sourceTree = "<group>"; };
+		BB0000030000000300000003 /* Services/DebugLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/DebugLogger.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +89,9 @@
 				F0420157E67E4C46A210AABD /* Models/TimeMachineBackup.swift */,
 				BEEFCAFE0123456789ABCDEF /* Models/Color+App.swift */,
 				3F1300FE0A6A40C5ACB9B97A /* Services/TMUtilService.swift */,
+				BB0000010000000100000001 /* Services/TMUtilTypes.swift */,
+				BB0000020000000200000002 /* Services/TMFDAUtils.swift */,
+				BB0000030000000300000003 /* Services/DebugLogger.swift */,
 				9A3B9BFD05E949DF91F693B8 /* ViewModels/BackupViewModel.swift */,
 				00B58925DE984C63BC5D63C1 /* Views/ContentView.swift */,
 				53FD8317951843FCB8E9C82E /* Views/PermissionView.swift */,
@@ -168,6 +177,9 @@
 				C283E2B72D56481799A0C2EA /* Models/TimeMachineBackup.swift in Sources */,
 				CDCDFEDCBA54321012345678 /* Models/Color+App.swift in Sources */,
 				399AF33952F3446E95420CCD /* Services/TMUtilService.swift in Sources */,
+				AA0000010000000100000001 /* Services/TMUtilTypes.swift in Sources */,
+				AA0000020000000200000002 /* Services/TMFDAUtils.swift in Sources */,
+				AA0000030000000300000003 /* Services/DebugLogger.swift in Sources */,
 				81F482A0E7DC4C5C8C080844 /* ViewModels/BackupViewModel.swift in Sources */,
 				7AE899A990904A9287860C99 /* Views/ContentView.swift in Sources */,
 				2B4E9F7998E241A89D8AADD9 /* Views/PermissionView.swift in Sources */,

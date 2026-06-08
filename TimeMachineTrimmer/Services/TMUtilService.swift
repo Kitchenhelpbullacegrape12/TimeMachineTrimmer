@@ -341,7 +341,7 @@ actor TMUtilService {
         do {
             try await runPrivileged(command)
             DebugLogger.log("deleteBackup: ✅ deleted \(snapshotName)")
-        } catch let error as TMError {
+        } catch let error as TMUtilTypes.TMError {
             if case .processFailed(let raw) = error {
                 let errorCode = TMUtilTypes.parseErrorCode(raw)
                 let codePrefix = errorCode.map { "Error \($0): " } ?? ""
