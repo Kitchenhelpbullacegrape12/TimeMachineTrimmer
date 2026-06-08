@@ -1,0 +1,35 @@
+name: Update Homebrew Tap
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g., 1.1.0)"
+        required: true
+        type: string
+      sha256:
+        description: "SHA256 of the DMG"
+        required: true
+        type: string
+
+jobs:
+  update-cask:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ricardoleal/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_PAT }}
+
+      - name: Update version and checksum
+        run: |
+          sed -i 's/version ".*"/version "${{ inputs.version }}"/' Casks/time-machine-trimmer.rb
+          sed -i 's/sha256 ".*"/sha256 "${{ inputs.sha256 }}"/' Casks/time-machine-trimmer.rb
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/time-machine-trimmer.rb
+          git commit -m "Update to v${{ inputs.version }}"
+          git push
