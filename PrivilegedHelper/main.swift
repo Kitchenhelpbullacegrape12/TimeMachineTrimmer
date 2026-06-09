@@ -81,7 +81,7 @@ class HelperDaemon: NSObject, NSXPCListenerDelegate, HelperProtocol {
         let deleteError = run("/usr/sbin/diskutil", args: [
             "apfs", "deleteSnapshot", "\"\(escapedMount)\"", "-name", "\"\(escapedName)\""
         ])
-        if let deleteError = deleteError {
+        if let deleteError {
             return deleteError
         }
 

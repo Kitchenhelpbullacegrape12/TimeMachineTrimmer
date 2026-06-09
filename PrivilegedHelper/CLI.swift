@@ -2,8 +2,11 @@ import Foundation
 
 let serviceName = "com.ricardoleal.TimeMachineTrimmerHelper"
 
+// swiftlint:disable:next no_print_statements
+func log(_ message: String) { print(message) }
+
 func printUsage() {
-    print("""
+    log("""
     TimeMachineTrimmer Helper CLI
 
     Usage: tmt-helper-cli <command>
@@ -32,31 +35,35 @@ func connectToHelper() -> HelperProtocol {
     let connection = NSXPCConnection(machServiceName: serviceName)
     connection.remoteObjectInterface = NSXPCInterface(with: HelperProtocol.self)
     connection.resume()
-    return connection.remoteObjectProxy as! HelperProtocol
+    guard let proxy = connection.remoteObjectProxy as? HelperProtocol else {
+        log("Error: Could not connect to helper")
+        exit(1)
+    }
+    return proxy
 }
 
 func cmdPing() {
-    print("Pinging helper at \(serviceName)...")
+    log("Pinging helper at \(serviceName)...")
     let proxy = connectToHelper()
     proxy.ping { alive in
-        print(alive ? "✓ Helper is alive" : "✗ Helper not responding")
+        log(alive ? "✓ Helper is alive" : "✗ Helper not responding")
         exit(alive ? 0 : 1)
     }
     RunLoop.current.run(until: Date().addingTimeInterval(5))
 }
 
 func cmdVersion() {
-    print("Getting helper version...")
+    log("Getting helper version...")
     let proxy = connectToHelper()
     proxy.version { version in
-        print("Helper version: \(version)")
+        log("Helper version: \(version)")
         exit(0)
     }
     RunLoop.current.run(until: Date().addingTimeInterval(5))
 }
 
 func cmdStatus() {
-    print("Checking helper status...")
+    log("Checking helper status...")
 
     let binaryPath = "/usr/local/bin/TimeMachineTrimmer-helper"
     let plistPath = "/Library/LaunchDaemons/com.ricardoleal.TimeMachineTrimmer.helper.plist"
@@ -64,34 +71,35 @@ func cmdStatus() {
     let binaryExists = FileManager.default.fileExists(atPath: binaryPath)
     let plistExists = FileManager.default.fileExists(atPath: plistPath)
 
-    print("  Binary: \(binaryExists ? "✓ \(binaryPath)" : "✗ Not found")")
-    print("  Plist:  \(plistExists ? "✓ \(plistPath)" : "✗ Not found")")
+    log("  Binary: \(binaryExists ? "✓ \(binaryPath)" : "✗ Not found")")
+    log("  Plist:  \(plistExists ? "✓ \(plistPath)" : "✗ Not found")")
 
     if binaryExists && plistExists {
-        print("  Testing connection...")
+        log("  Testing connection...")
         let proxy = connectToHelper()
         proxy.ping { alive in
-            print("  Connection: \(alive ? "✓ Connected" : "✗ Not responding")")
+            log("  Connection: \(alive ? "✓ Connected" : "✗ Not responding")")
             exit(alive ? 0 : 1)
         }
         RunLoop.current.run(until: Date().addingTimeInterval(5))
     } else {
-        print("\nHelper not installed. Run: tmt-helper-cli install")
+        log("\nHelper not installed. Run: tmt-helper-cli install")
         exit(1)
     }
 }
 
 func cmdInstall() {
-    print("Installing helper...")
-    print("This requires administrator privileges.")
+    log("Installing helper...")
+    log("This requires administrator privileges.")
 
     let cwd = FileManager.default.currentDirectoryPath
-    let helperSrc = "\(cwd)/build/TimeMachineTrimmer.app/Contents/Library/LaunchServices/TimeMachineTrimmer-helper"
-    let plistSrc = "\(cwd)/build/TimeMachineTrimmer.app/Contents/Library/LaunchServices/com.ricardoleal.TimeMachineTrimmer.helper.plist"
+    let buildPath = "\(cwd)/build/TimeMachineTrimmer.app/Contents/Library/LaunchServices"
+    let helperSrc = "\(buildPath)/TimeMachineTrimmer-helper"
+    let plistSrc = "\(buildPath)/com.ricardoleal.TimeMachineTrimmer.helper.plist"
 
     guard FileManager.default.fileExists(atPath: helperSrc) else {
-        print("Error: Could not find helper binary at \(helperSrc)")
-        print("Run from project root after building: .scripts/build.sh")
+        log("Error: Could not find helper binary at \(helperSrc)")
+        log("Run from project root after building: .scripts/build.sh")
         exit(1)
     }
 
@@ -107,22 +115,25 @@ func cmdInstall() {
 
     let task = Process()
     task.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-    task.arguments = ["-e", "do shell script \"\(script.replacingOccurrences(of: "\"", with: "\\\""))\" with administrator privileges"]
+    task.arguments = [
+        "-e",
+        "do shell script \"\(script.replacingOccurrences(of: "\"", with: "\\\""))\" with administrator privileges"
+    ]
 
     task.launch()
     task.waitUntilExit()
 
     if task.terminationStatus == 0 {
-        print("✓ Helper installed successfully")
+        log("✓ Helper installed successfully")
     } else {
-        print("✗ Installation failed")
+        log("✗ Installation failed")
         exit(1)
     }
 }
 
 func cmdUninstall() {
-    print("Uninstalling helper...")
-    print("This requires administrator privileges.")
+    log("Uninstalling helper...")
+    log("This requires administrator privileges.")
 
     let script = """
     launchctl bootout system/com.ricardoleal.TimeMachineTrimmer.helper 2>/dev/null; \
@@ -132,15 +143,18 @@ func cmdUninstall() {
 
     let task = Process()
     task.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-    task.arguments = ["-e", "do shell script \"\(script.replacingOccurrences(of: "\"", with: "\\\""))\" with administrator privileges"]
+    task.arguments = [
+        "-e",
+        "do shell script \"\(script.replacingOccurrences(of: "\"", with: "\\\""))\" with administrator privileges"
+    ]
 
     task.launch()
     task.waitUntilExit()
 
     if task.terminationStatus == 0 {
-        print("✓ Helper uninstalled successfully")
+        log("✓ Helper uninstalled successfully")
     } else {
-        print("✗ Uninstall failed")
+        log("✗ Uninstall failed")
         exit(1)
     }
 }
@@ -150,35 +164,35 @@ func cmdDelete(args: [String]) {
     var volumePath = ""
     var path = ""
 
-    var i = 0
-    while i < args.count {
-        switch args[i] {
+    var index = 0
+    while index < args.count {
+        switch args[index] {
         case "--snapshot":
-            i += 1
-            snapshotName = args[i]
+            index += 1
+            snapshotName = args[index]
         case "--volume":
-            i += 1
-            volumePath = args[i]
+            index += 1
+            volumePath = args[index]
         case "--path":
-            i += 1
-            path = args[i]
+            index += 1
+            path = args[index]
         default:
             break
         }
-        i += 1
+        index += 1
     }
 
     guard !snapshotName.isEmpty, !volumePath.isEmpty else {
-        print("Error: --snapshot and --volume are required")
+        log("Error: --snapshot and --volume are required")
         printUsage()
         exit(1)
     }
 
-    print("Deleting backup...")
-    print("  Snapshot: \(snapshotName)")
-    print("  Volume:   \(volumePath)")
+    log("Deleting backup...")
+    log("  Snapshot: \(snapshotName)")
+    log("  Volume:   \(volumePath)")
     if !path.isEmpty {
-        print("  Path:     \(path)")
+        log("  Path:     \(path)")
     }
 
     let backup = HelperBackup(
@@ -192,10 +206,10 @@ func cmdDelete(args: [String]) {
     proxy.deleteBackups([backup]) { results in
         for (id, error) in results {
             if error.isEmpty {
-                print("\n✓ Deleted: \(id)")
+                log("\n✓ Deleted: \(id)")
             } else {
-                print("\n✗ Failed: \(id)")
-                print("  Error: \(error)")
+                log("\n✗ Failed: \(id)")
+                log("  Error: \(error)")
             }
         }
         exit(results.values.allSatisfy { $0.isEmpty } ? 0 : 1)
@@ -205,8 +219,7 @@ func cmdDelete(args: [String]) {
 
 // MARK: - Main
 
-@main
-struct CLI {
+enum CLI {
     static func main() {
         let args = Array(CommandLine.arguments.dropFirst())
 
@@ -231,7 +244,7 @@ struct CLI {
         case "--help", "-h", "help":
             printUsage()
         default:
-            print("Unknown command: \(command)")
+            log("Unknown command: \(command)")
             printUsage()
             exit(1)
         }
