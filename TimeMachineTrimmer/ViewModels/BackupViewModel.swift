@@ -83,6 +83,7 @@ final class BackupViewModel {
     var selectedBackupIds: Set<String> = []
     var deletionProgress: Double = 0
     var deletionLog: [String] = []
+    var isBatchDeletion: Bool = false
     var errorMessage: String?
     var searchQuery: String = ""
     var tmBackupRunning: Bool = false
@@ -230,6 +231,8 @@ final class BackupViewModel {
         // Try helper batch first
         let helperClient = HelperClient()
         if await helperClient.isInstalled {
+            isBatchDeletion = true
+            deletionLog.append("Sending \(previewBackups.count) backup(s) to privileged helper...")
             do {
                 let results = try await service.deleteBackupsViaHelper(previewBackups)
                 await processHelperResults(results)
@@ -246,6 +249,7 @@ final class BackupViewModel {
     }
 
     private func processHelperResults(_ results: [String: String]) async {
+        isBatchDeletion = false
         var deleted = 0
         var failed = 0
         var errors: [DeletionError] = []
@@ -322,6 +326,7 @@ final class BackupViewModel {
         selectedBackupIds = []
         deletionProgress = 0
         deletionLog = []
+        isBatchDeletion = false
     }
 
     func toggleBackupSelection(_ id: String) {
