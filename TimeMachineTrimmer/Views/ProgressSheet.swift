@@ -13,15 +13,21 @@ struct ProgressSheet: View {
                 .font(.title3)
                 .fontWeight(.semibold)
 
-            ProgressView(value: viewModel.deletionProgress) {
-                Text("\(Int(viewModel.deletionProgress * 100))%")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
+            if viewModel.isBatchDeletion {
+                ProgressView()
+                    .progressViewStyle(.linear)
+                    .padding(.horizontal)
+            } else {
+                ProgressView(value: viewModel.deletionProgress) {
+                    Text("\(Int(viewModel.deletionProgress * 100))%")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                        .contentTransition(.numericText())
+                }
+                .progressViewStyle(.linear)
+                .padding(.horizontal)
             }
-            .progressViewStyle(.linear)
-            .padding(.horizontal)
 
             logSection
         }
