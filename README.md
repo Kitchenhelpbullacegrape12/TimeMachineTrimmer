@@ -1,23 +1,22 @@
 ![Static Badge](https://img.shields.io/badge/26_Tahoe-orange?label=macOS&style=flat-square)
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/ricardoleal/TimeMachineTrimmer?style=flat-square)
 ![Homebrew](https://img.shields.io/badge/tap-ricardoleal%2Ftap-FBB040?logo=homebrew&label=homebrew&style=flat-square)
-
 # TimeMachineTrimmer
-<div align="center">
-  <img src=".github/banner.svg" alt="TimeMachineTrimmer banner">
-</div>
 
 Trim old Time Machine backups and reclaim disk space.
 
-<div align="center">
-  <img src=".github/TimeMachineTrimmer.png" width="720" alt="TimeMachineTrimmer screenshot">
-</div>
+![TimeMachineTrimmer screenshot](.github/TimeMachineTrimmer.png)
 
 ## Features
 
 - **Trim snapshots** — delete old backups from any Time Machine volume
 - **Reclaim space** — remove unwanted snapshots and free up disk
 - **macOS-native** — lightweight, native SwiftUI app
+
+## In the News
+
+> "TimeMachineTrimmer … un petit outil … C'est simple et c'est gratuit."
+> — [VVMac (FR)](https://vvmac.fr/wordpress_b/flash-du-samedi-13-juin-2026/#avec-timemachinetrimmer-desengorgez-votre-disque-time-machine)
 
 ## Install
 
