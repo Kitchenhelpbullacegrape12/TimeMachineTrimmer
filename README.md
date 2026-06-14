@@ -1,9 +1,14 @@
 ![Static Badge](https://img.shields.io/badge/26_Tahoe-orange?label=macOS&style=flat-square)
+![Static Badge](https://img.shields.io/badge/27_GG-red?label=macOS&style=flat-square)
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/ricardoleal/TimeMachineTrimmer?style=flat-square)
 ![Homebrew](https://img.shields.io/badge/tap-ricardoleal%2Ftap-FBB040?logo=homebrew&label=homebrew&style=flat-square)
+
 # TimeMachineTrimmer
 
 Trim old Time Machine backups and reclaim disk space.
+
+> [!CAUTION]
+> **macOS 27 Golden Gate is not yet supported.** The app is actively tested on macOS 26 Tahoe only. Issues on macOS 27 are known and will be addressed in a future update.
 
 ![TimeMachineTrimmer screenshot](.github/TimeMachineTrimmer.png)
 
